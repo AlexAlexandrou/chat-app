@@ -25,7 +25,7 @@ func portListener() {
 		return
 	}
 	defer listener.Close() // With 'defer', ensure the listener is closed when the program exits
-	fmt.Println("Server started on port 8080")
+	fmt.Println("New server started on port 8080")
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -191,43 +191,3 @@ func main() {
 	}
 	os.Exit(0)
 }
-
-/*  THINGS TO ADD
-
-- Basic Additions (Beginner-Friendly)
-	These will improve usability and reliability:
-
-	DONE (one command)- Command Support: Let users type /list to get a list of connected clients.
- 	DONE - Graceful Shutdown: Allow the server to shut down cleanly (e.g. with Ctrl+C) and notify all clients.
- 	DONE? (have this when sending messages) - Client Join/Leave Timestamps: Include timestamps in messages or system logs.
- 	- Input Validation: Ensure that empty or malformed messages don’t get broadcast.
-
---------------------------------------------
-
-- Intermediate Features
-	These will start to push you to think about structure and protocol:
-
-	- Private Messaging: Let clients send direct messages using a command like /msg IP:Port message.
-	DONE - Nicknames (Optional Usernames): Allow users to set a nickname after joining (e.g. /nick Alice), fallback to IP if none is set.
-	- Colored Output (for clients): If you write a simple CLI client, use ANSI colors to differentiate senders.
-	- Logging: Save chat history to a file on the server.
-	- Rate Limiting: Prevent spam by limiting how often clients can send messages.
-
---------------------------------------------
-
-- Advanced Ideas (Structural/Architectural)
-	These are more complex and great if you want to level up:
-
-	- Channels or Rooms: Implement chat rooms, like /join room1, /leave room1, etc.
-	- WebSocket Support: Build a browser-based client using WebSockets (requires switching from raw TCP to HTTP/WebSocket).
-	- TLS Encryption: Secure the connections with TLS so the chat is encrypted.
-	- Authentication: Add a login system (even a simple one) so only certain users can join.
-	- Database Integration: Store user info or chat logs in a database (SQLite or Postgres).
-
-- Optional Client-Side Improvements
-	If you write a separate Go client or move to a GUI/web-based one:
-
-	- Reconnect Logic: If the connection drops, try to reconnect.
-	- Input/Output Separation: Show received messages separately from where the user is typing (like in real chat apps).
-	- Auto-scroll / Message history navigation.
-*/
