@@ -25,7 +25,7 @@ func portListener() {
 		return
 	}
 	defer listener.Close() // With 'defer', ensure the listener is closed when the program exits
-	fmt.Println("New server started on port 8080")
+	fmt.Println("Server started on port 8080")
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -104,25 +104,35 @@ func handleConnection(conn net.Conn) {
 }
 
 func setUpDisplayName(conn net.Conn) error {
-	_, err := conn.Write([]byte("Please enter your display name:\n"))
+	_, err := conn.Write([]byte("Please enter your user name:\n"))
 	if err != nil {
 		fmt.Printf("Error sending message to %s\n", conn.RemoteAddr())
 		return err
 	}
-	displayName := make([]byte, 1024)
-	n, err := conn.Read(displayName)
-	if err != nil {
-		fmt.Printf("Connection from %s lost.", conn.RemoteAddr())
-		return err
+	for { // loop until user enters valid username
+		displayName := make([]byte, 1024)
+		n, err := conn.Read(displayName)
+		if err != nil {
+			fmt.Printf("Connection from %s lost.", conn.RemoteAddr())
+			return err
+		}
+		if !existingUser(string(displayName[:n])) {
+			clients[conn] = strings.TrimSuffix(string(displayName[:n]), "\n")
+			break
+		} else {
+			_, err := conn.Write([]byte("[ERR] This username already exists. Please enter another name name:\n"))
+			if err != nil {
+				fmt.Printf("Error sending message to %s\n", conn.RemoteAddr())
+				return err
+			}
+		}
 	}
-	clients[conn] = strings.TrimSuffix(string(displayName[:n]), "\n")
-
 	return nil
 }
 
 func commands(command string, conn net.Conn) {
 	switch command {
-	case "connected_users":
+	case "connected_users": // show currently connected users
 		_, err := conn.Write([]byte("#####################\nConnected users:\n"))
 		if err != nil {
 			fmt.Printf("Error sending message to %s\n", conn.RemoteAddr())
@@ -140,7 +150,7 @@ func commands(command string, conn net.Conn) {
 			fmt.Printf("Error sending message to %s\n", conn.RemoteAddr())
 		}
 
-	case "rename":
+	case "rename": // change user name
 		_, err := conn.Write([]byte("Enter new name:\n"))
 		if err != nil {
 			handleConnectionError("prompt to enter new name", clients[conn], err)
@@ -166,6 +176,47 @@ func commands(command string, conn net.Conn) {
 				}
 			}
 		}
+	case "dm": // send direct message to a user
+		_, err := conn.Write([]byte("Who would you like to send a direct message to?\n"))
+		if err != nil {
+			handleConnectionError("prompt to enter user to DM.", clients[conn], err)
+		}
+		dmUser := make([]byte, 1024)
+		n, err := conn.Read(dmUser)
+		if err != nil {
+			handleConnectionError("reading new display name", clients[conn], err)
+		}
+		dmUser = dmUser[:n]
+		if !existingUser(string(dmUser)) {
+			_, err = conn.Write([]byte("User [" + string(dmUser) + "] does not exist.\n"))
+			if err != nil {
+				handleConnectionError("prompt to enter DM.", clients[conn], err)
+			}
+			return
+		} else if clients[conn] == string(dmUser) {
+			_, err = conn.Write([]byte("Cannot send DM to yourself.\n"))
+			if err != nil {
+				handleConnectionError("prompt to enter DM.", clients[conn], err)
+			}
+			return
+		}
+		_, err = conn.Write([]byte("Enter message to send to [" + string(dmUser) + "]:\n"))
+		if err != nil {
+			handleConnectionError("prompt to enter DM message.", clients[conn], err)
+		}
+		dm := make([]byte, 1024)
+		n, err = conn.Read(dm)
+		if err != nil {
+			handleConnectionError("reading new display name", clients[conn], err)
+		}
+		for client, userName := range clients {
+			if userName == string(dmUser) {
+				_, err = client.Write([]byte("[MSG] [" + clients[conn] + "] (DM): " + string(dm[:n]) + "\n"))
+				if err != nil {
+					handleConnectionError("sending DM.", clients[conn], err)
+				}
+			}
+		}
 
 	default:
 		_, err := conn.Write([]byte("Unknown command.\n"))
@@ -173,6 +224,16 @@ func commands(command string, conn net.Conn) {
 			fmt.Printf("Error sending message to %s\n", conn.RemoteAddr())
 		}
 	}
+}
+
+func existingUser(user string) bool {
+	// Check if specified userName exists
+	for _, userName := range clients {
+		if user == userName {
+			return true
+		}
+	}
+	return false
 }
 
 func main() {
