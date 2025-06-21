@@ -178,7 +178,7 @@ func commands(command string, conn net.Conn) {
 			}
 		}
 	case "dm": // send direct message to a user
-		_, err := conn.Write([]byte("Who would you like to send a direct message to?\n"))
+		_, err := conn.Write([]byte("Who would you like to send a direct message to? (Enter '/cancel' to abort operation).\n"))
 		if err != nil {
 			handleConnectionError("prompt to enter user to DM.", clients[conn], err)
 		}
@@ -188,6 +188,10 @@ func commands(command string, conn net.Conn) {
 			handleConnectionError("reading new display name", clients[conn], err)
 		}
 		dmUser = dmUser[:n]
+
+		if string(dmUser) == "/cancel" {
+			return
+		}
 		if !existingUser(string(dmUser)) {
 			_, err = conn.Write([]byte("User [" + string(dmUser) + "] does not exist.\n"))
 			if err != nil {
