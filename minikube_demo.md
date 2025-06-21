@@ -37,14 +37,14 @@ minikube image load chat-server
 ```
 
 ## 3. Deploy to K8s
-Apply the `deployment.yaml` and `service.yaml` files under the k8s-configs folder.
+Apply the `deployment.yaml` and `service.yaml` files under the k8s folder.
 ```sh
-kubectl apply -f ./k8s-configs/
+kubectl apply -f ./k8s/
 ``` 
 You can also apply each file individually:
 ```sh
-kubectl apply -f k8s-configs/deployment.yaml
-kubectl apply -f k8s-configs/service.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
 ```
 
 ## 4. Expose IP
@@ -70,8 +70,8 @@ minikube tunnel
 To clean up after setting this with minikube locally:
 ```sh
 # Run the following commands if you want to cleanup but still keep your minikube cluster
-kubectl delete -f k8s-configs/deployment.yaml
-kubectl delete -f k8s-configs/service.yaml
+kubectl delete -f k8s/deployment.yaml
+kubectl delete -f k8s/service.yaml
 minikube stop
 
 # Run the following if you want to delete the cluster completely
