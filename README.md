@@ -16,7 +16,7 @@ If a user wants to connect to the server to start sending and receiving messages
 ## K8s config
 `/k8s`
 
-This is where all the k8s are stored. These are needed for the k8s to run the server
+The configurations needed to set up the K8s side of things are stored here. These are needed for the k8s to run the server.
 
 ## Run locally/Demo
 You can follow the instructions in  [minikube_demo.md](./minikube_demo.md) to run this locally with Minikube.
