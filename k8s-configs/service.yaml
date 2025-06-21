@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-server-service
+spec:
+  selector:
+    app: chat-server
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: LoadBalancer # When using minikube, use `minikube tunnel to create an IP that can be accessed locally`
