@@ -59,11 +59,12 @@ func handleConnection(conn net.Conn) {
 		}
 	}
 
-	buffer := make([]byte, 1024)                 // will store user input
-	commandRegex := regexp.MustCompile(`/(\w+)`) // regex for command inputs "/.+".
-	for {                                        // handle user input
-		n, err := conn.Read(buffer) // n represents the number of bytes received
-		if err != nil {             // handle when user disconnects
+	buffer := make([]byte, 1024)
+	commandRegex := regexp.MustCompile(`/(\w+)`)
+	// handle user input
+	for {
+		n, err := conn.Read(buffer)
+		if err != nil {
 			fmt.Printf("Connection from %s lost.", conn.RemoteAddr())
 			for client := range clients { // Send message to other clients if someone disconnects
 				if client != conn {
@@ -83,12 +84,12 @@ func handleConnection(conn net.Conn) {
 		message := string(buffer[:n])
 		commandMatch := commandRegex.FindStringSubmatch(message)
 		if commandMatch != nil {
-			commands(commandMatch[1], conn) // command[1] is basically the match group of the regex. command[0] is the entire match
+			commands(commandMatch[1], conn)
 			continue
 		}
 		fmt.Printf("[%s]: %s\n", conn.RemoteAddr(), message)
 
-		// Print message to other clients
+		// Display message to other clients
 		for client := range clients {
 			if client != conn { // check if client is not the current connection
 				_, err := client.Write([]byte("[MSG][" + clients[conn] + "]: " + message + "\n")) // Send message to other clients
@@ -133,7 +134,7 @@ func setUpDisplayName(conn net.Conn) error {
 func commands(command string, conn net.Conn) {
 	switch command {
 	case "connected_users": // show currently connected users
-		_, err := conn.Write([]byte("#####################\nConnected users:\n"))
+		_, err := conn.Write([]byte("#####################\n# Connected users:\n"))
 		if err != nil {
 			fmt.Printf("Error sending message to %s\n", conn.RemoteAddr())
 		}
