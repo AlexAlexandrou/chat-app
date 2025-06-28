@@ -19,13 +19,17 @@ func handleConnectionError(connType string, user string, err error) {
 }
 
 func portListener() {
-	listener, err := net.Listen("tcp", ":8080")
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "8080"
+	}
+	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatal("Error listening: ", err)
 		return
 	}
 	defer listener.Close() // With 'defer', ensure the listener is closed when the program exits
-	fmt.Println("Server started on port 8080")
+	fmt.Println("Server started on port " + port)
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
