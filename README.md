@@ -1,11 +1,11 @@
 # Simple chat application deployed in Kubernetes
 
-This is a simple chat server that allows clients to connect to it and chat over TCP.
+This is a very simple application created to get familiar with the basics of k8s and golang. It allows users to connect to it and chat.
 
 ## Server side
 `/server`
 
-This is where the server that will run the chat app is stored. If you want to change to the way the server operates you will need to make your changes there.
+This is where the server will be stored that runs the chat app.
 
 ## Client/User side
 `/client`
